@@ -82,7 +82,9 @@ while not rospy.is_shutdown():
 
         force_data = depth_data + balance_data + forward_data + turn_data
         sum_data = list(force_data)[0]
-        for i in range(2, 8):
+        for i in range(2):
+            sum_data[i] = -sum_data[i]
+        for i in range(4, 8):
             sum_data[i] = -sum_data[i]
         print(sum_data)
         pub_data = Float32MultiArray(data = sum_data)

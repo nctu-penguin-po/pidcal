@@ -20,8 +20,9 @@ autoSwitch = 0
 joyK = 0
 
 def trigger_cb(data):
-    global turn_kp, state_data
+    global turn_kp, state_data, joyK, autoSwitch
     turn=data.data
+    print(state_data)
     if (state_data & 2) == 0 or state_data == -1:
         turn_direction = 0
         pub2.publish(0)
@@ -29,8 +30,6 @@ def trigger_cb(data):
         pub_data = Float32MultiArray(data = pub_data)
         pub1.publish(pub_data)
         return
-    #test_mat_all = np.matrix([[0], [0], [turn], [0], [0], [0]])
-    #result_F = T_all*test_mat_all
     if autoSwitch%2 == 1:
         turn_direction = joyK
     elif turn_flag[0] > 0:
@@ -91,6 +90,7 @@ def time_cb(data):
 rospy.init_node('turnPID',anonymous=True)
 
 rospy.Subscriber('/trigger_command', Int32, trigger_cb)
+rospy.Subscriber('/state', Int32, state_cb)
 rospy.Subscriber('/PIDpara/turn', Float32, turnKp_cb)
 rospy.Subscriber('/flag/PIDturn', Int32MultiArray, turnflag_cb)
 rospy.Subscriber('/joy/button', Int32MultiArray, joyB_cb)

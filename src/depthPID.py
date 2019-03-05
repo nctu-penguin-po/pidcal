@@ -79,14 +79,17 @@ def joyB_cb(data):
     global joy_button_data, joyK, autoSwitch
     joy_button_data = data.data
     left_sig = joy_button_data[1]
+    right_sig = joy_button_data[0]
     if left_sig%2 == 1:
-        joyK = joyK+joyKrate
-    elif (left_sig >> 1)%2 == 1:
         joyK = joyK+joyKrate*10
-    elif (left_sig >> 2)%2 == 1:
+    elif (left_sig >> 1)%2 == 1:
         joyK = joyK-joyKrate
-    elif (left_sig >> 3)%2 == 1:
+    elif (left_sig >> 2)%2 == 1:
         joyK = joyK-joyKrate*10
+    elif (left_sig >> 3)%2 == 1:
+        joyK = joyK+joyKrate
+    if (right_sig >> 2)%2 == 1:
+        joyK = 0
     front_sig = joy_button_data[2]
     if (front_sig >> 2)%2 == 1:
         autoSwitch = (autoSwitch+1)%2

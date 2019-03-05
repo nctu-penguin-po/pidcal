@@ -26,7 +26,7 @@ def B_onclick():
     vol = float(eList[6].get())
     but = int(eList[7].get())
     t = float(eList[8].get())
-    state = int(eList[9].get())
+    trigger = int(eList[9].get())
     pos=np.array(posture_data, dtype = np.float32)
     pub1.publish(pos)
     pub2.publish(depth)
@@ -35,13 +35,13 @@ def B_onclick():
     pub5.publish(vol)
     pub6.publish(but)
     pub7.publish(t)
-    pub8.publish(state)
+    pub8.publish(trigger)
 
 win = tk.Tk()
 win.title('Dummy motor')
 
 eList = []
-text = ['row', 'pitch', 'yaw', 'depth', 'forward command', 'turn command', 'voltage', 'button', 'sumi_t', 'state']
+text = ['row', 'pitch', 'yaw', 'depth', 'forward command', 'turn command', 'voltage', 'button', 'sumi_t', 'trigger']
 for i in range(len(text)):
     L = tk.Label(win, text = text[i]).grid(row=i, column=0)
     e = tk.Entry(win)
@@ -58,6 +58,6 @@ pub4 = rospy.Publisher('/turn_command',Int32,queue_size=10)
 pub5 = rospy.Publisher('/voltage',Float32,queue_size=10)
 pub6 = rospy.Publisher('/button',Int32,queue_size=10)
 pub7 = rospy.Publisher('/sumi_t',Float32,queue_size=10)
-pub8 = rospy.Publisher('/state',Int32,queue_size=10)
+pub8 = rospy.Publisher('/trigger_command',Int32,queue_size=10)
 
 win.mainloop()

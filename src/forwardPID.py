@@ -13,6 +13,7 @@ import time
 
 #suT = 0
 
+joyK = 0
 joy_button_data = [0, 0, 0]
 joy_left_data = [0, 0]
 forwardFlag = 0
@@ -55,8 +56,8 @@ def turnflag_cb(data):
 def joyB_cb(data):
     global joy_button_data, autoSwitch
     joy_button_data = data.data
-    front_sig = joy_button_data[0]
-    if (front_sig >> 1)%2 == 1:
+    front_sig = joy_button_data[2]
+    if (front_sig >> 3)%2 == 1:
         autoSwitch = (autoSwitch+1)%2
         pub3.publish(autoSwitch)
         
@@ -64,9 +65,9 @@ def joyL_cb(data):
     global joy_left_data, joyK
     joy_left_data = data.data
     y_sig = joy_left_data[1]
-    if x_sig > 0:
+    if y_sig > 0:
         joyK = 1
-    elif x_sig < 0:
+    elif y_sig < 0:
         joyK = -1
     else:
         joyK = 0
@@ -84,7 +85,8 @@ def time_cb(data):
 '''
 
 #F = 6.23N = 1.4lbf = pwm1600
-Kp = (Tax[2]+Tax[3])/(2*6.23)
+Kp = 1
+#Kp = (Tax[2]+Tax[3])/(2*6.23)
 
 rospy.init_node('forwardPID',anonymous=True)
 
@@ -92,7 +94,7 @@ rospy.Subscriber('/trigger_command', Int32, trigger_cb)
 rospy.Subscriber('/state', Int32, state_cb)
 rospy.Subscriber('/flag/PIDturn', Int32MultiArray, turnflag_cb)
 rospy.Subscriber('/joy/button', Int32MultiArray, joyB_cb)
-rospy.Subscriber('/joy/left', Int32MultiArray, joyB_cb)
+rospy.Subscriber('/joy/left', Int32MultiArray, joyL_cb)
 #rospy.Subscriber('sumi_t', Float32, time_cb)
 
 pub1 = rospy.Publisher('/force/forward',Float32MultiArray,queue_size=10)
