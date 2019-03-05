@@ -41,6 +41,7 @@ def pos_cb(data):
         pub_data = [0 for i in range(8)]
         pub_data = Float32MultiArray(data = pub_data)
         pub1.publish(pub_data)
+        pub2.publish(0)
         return
 
     row = posture_data[0]

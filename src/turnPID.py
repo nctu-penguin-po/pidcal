@@ -11,18 +11,29 @@ from std_msgs.msg import Int32MultiArray
 from rospy.numpy_msg import numpy_msg
 import time
 
+joy_button_data = [0, 0, 0]
+joy_right_data = [0, 0]
 turn_kp = 1
 turn_flag = [0, 0] #left, right
 state_data = 0
+autoSwitch = 0
+joyK = 0
 
-def turn_cb(data):
+def trigger_cb(data):
     global turn_kp, state_data
     turn=data.data
+    if (state_data & 2) == 0 or state_data == -1:
+        turn_direction = 0
+        pub2.publish(0)
+        pub_data = [0 for i in range(8)]
+        pub_data = Float32MultiArray(data = pub_data)
+        pub1.publish(pub_data)
+        return
     #test_mat_all = np.matrix([[0], [0], [turn], [0], [0], [0]])
     #result_F = T_all*test_mat_all
-    if state_data == 0 or state_data == -1:
-        turn_direction = 0
-    if turn_flag[0] > 0:
+    if autoSwitch%2 == 1:
+        turn_direction = joyK
+    elif turn_flag[0] > 0:
         turn_direction = 1
     elif turn_flag[1] > 0:
         turn_direction = -1
@@ -49,6 +60,25 @@ def turnflag_cb(data):
     turn_flag[0] = data[0]
     turn_flag[1] = data[1]
 
+def joyB_cb(data):
+    global joy_button_data, autoSwitch
+    joy_button_data = data.data
+    front_sig = joy_button_data[2]
+    if front_sig%2 == 1:
+        autoSwitch = (autoSwitch+1)%2
+        pub3.publish(autoSwitch)
+        
+def joyR_cb(data):
+    global joy_right_data, joyK
+    joy_right_data = data.data
+    x_sig = joy_right_data[0]
+    if x_sig > 0:
+        joyK = -1
+    elif x_sig < 0:
+        joyK = 1
+    else:
+        joyK = 0
+
 '''
 def time_cb(data):
     data = data.data
@@ -60,13 +90,16 @@ def time_cb(data):
 
 rospy.init_node('turnPID',anonymous=True)
 
-rospy.Subscriber('turn_command', Int32, turn_cb)
+rospy.Subscriber('/trigger_command', Int32, trigger_cb)
 rospy.Subscriber('/PIDpara/turn', Float32, turnKp_cb)
 rospy.Subscriber('/flag/PIDturn', Int32MultiArray, turnflag_cb)
+rospy.Subscriber('/joy/button', Int32MultiArray, joyB_cb)
+rospy.Subscriber('/joy/right', Int32MultiArray, joyR_cb)
 #rospy.Subscriber('/sumi_t', Float32, time_cb)
 
 pub1 = rospy.Publisher('/force/turn',Float32MultiArray,queue_size=10)
 pub2 = rospy.Publisher('/ft/turn',Float32,queue_size=10)
+pub3 = rospy.Publisher('/joy/flag/turn',Int32,queue_size=10)
 
 while not rospy.is_shutdown():
     pass

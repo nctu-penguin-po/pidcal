@@ -15,12 +15,16 @@ state_data = 0
 depth_data = 0
 depthL = [0 for i in range(10)]
 depthR = [0.3, 0.35, 0.6]
+joy_button_data = [0, 0, 0]
 
+joyKrate = 0.01
 Fkp = 0
 FincreaseRate = 0.05
+joyK = 0
+autoSwitch = 0
 
 def depth_cb(data):
-    global depthL, Fkp, FincreaseRate, depth_data, state_data
+    global depthL, Fkp, FincreaseRate, depth_data, state_data, autoSwitch
     depth_data=data.data
     for i in range(len(depthL)-1, 0, -1):
         depthL[i] = depthL[i-1]
@@ -29,6 +33,7 @@ def depth_cb(data):
         pub_data = [0 for i in range(8)]
         pub_data = Float32MultiArray(data = pub_data)
         pub1.publish(pub_data)
+        pub2.publish(0)
         return
     
     D = depthL[0] - depthL[2]
@@ -48,11 +53,15 @@ def depth_cb(data):
             Fkp = Fkp-FincreaseRate*10
     '''
     #test_mat_all = np.matrix([[0], [0], [az], [0], [0], [0]])
-    result_F = Taz*Fkp
+    if autoSwitch == 0:
+        Foutrate = Fkp
+    else:
+        Foutrate = joyK
+    result_F = Taz*Foutrate
     pub_data = [result_F[i] for i in range(8)]
     pub_data = Float32MultiArray(data = pub_data)
     pub1.publish(pub_data)
-    pub2.publish(Fkp)
+    pub2.publish(Foutrate)
 
 def Kp_cb(data):
     global FincreaseRate
@@ -66,6 +75,23 @@ def state_cb(data):
     if (state_data%2) == 1:
         Fkp = init_K
 
+def joyB_cb(data):
+    global joy_button_data, joyK, autoSwitch
+    joy_button_data = data.data
+    left_sig = joy_button_data[1]
+    if left_sig%2 == 1:
+        joyK = joyK+joyKrate
+    elif (left_sig >> 1)%2 == 1:
+        joyK = joyK+joyKrate*10
+    elif (left_sig >> 2)%2 == 1:
+        joyK = joyK-joyKrate
+    elif (left_sig >> 3)%2 == 1:
+        joyK = joyK-joyKrate*10
+    front_sig = joy_button_data[2]
+    if (front_sig >> 2)%2 == 1:
+        autoSwitch = (autoSwitch+1)%2
+        pub3.publish(autoSwitch)
+
 init_lbf = 12.34*4.44482
 sum = Taz[4]+Taz[5]+Taz[6]+Taz[7]
 init_K = -init_lbf/sum
@@ -75,9 +101,11 @@ rospy.init_node('depthPID',anonymous=True)
 rospy.Subscriber('depth', Float32, depth_cb)
 rospy.Subscriber('/PIDpara/depth', Float32, Kp_cb)
 rospy.Subscriber('/state', Int32, state_cb)
+rospy.Subscriber('/joy/button', Int32MultiArray, joyB_cb)
 
 pub1 = rospy.Publisher('/force/depth',Float32MultiArray,queue_size=10)
 pub2 = rospy.Publisher('/ft/depth',Float32,queue_size=10)
+pub3 = rospy.Publisher('/joy/flag/depth',Int32,queue_size=10)
 
 while not rospy.is_shutdown():
     pass
