@@ -27,25 +27,27 @@ def compass_cb(data):
 rospy.init_node('magnetic_calibration',anonymous=True)
 pub1 = rospy.Publisher('state',Int32,queue_size=10)
 time.sleep(1)
-rospy.Subscriber('compass', Int32MultiArray, compass_cb)
 pub1.publish(10)
+time.sleep(2)
+rospy.Subscriber('compass', Int32MultiArray, compass_cb)
+pub1.publish(1)
 while not rospy.is_shutdown():
     if len(x_data) == 10:
         pub1.publish(2)
     if len(x_data) == 20:
-        pub1.publish(3)
-    if len(x_data) == 30:
         pub1.publish(4)
-    if len(x_data) == 40:
-        pub1.publish(5)
-    if len(x_data) == 50:
+    if len(x_data) == 30:
         pub1.publish(8)
-    if len(x_data) == 60:
-        pub1.publish(9)
-    if len(x_data) == 70:
+    if len(x_data) == 40:
         pub1.publish(16)
+    if len(x_data) == 50:
+        pub1.publish(32)
+    if len(x_data) == 60:
+        pub1.publish(64)
+    if len(x_data) == 70:
+        pub1.publish(128)
     if len(x_data) > 80:
-        pub1.publish(17)
+        pub1.publish(1)
         break
 
 xList = list(x_data)
