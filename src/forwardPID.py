@@ -22,8 +22,8 @@ autoSwitch = 0
 Kp = 0
 
 def trigger_cb(gdata):
-    global Kp
-    if state_data == 0 or state_data == -1:
+    global Kp, autoSwitch
+    if (state_data >> 2)%2 == 0 or state_data == -1:
         pub_data = [0 for i in range(8)]
         pub_data = Float32MultiArray(data = pub_data)
         pub1.publish(pub_data)
@@ -42,8 +42,15 @@ def trigger_cb(gdata):
     pub2.publish(Kp*Foutrate)
 
 def state_cb(data):
-    global state_data
+    global state_data, autoSwitch, joyK
     state_data = data.data
+    if (state_data >> 2)%2 == 1:
+        autoSwitch = 1
+        joyK = 1.5
+    else:
+        autoSwitch = 0
+        joyK = 0
+    pub3.publish(autoSwitch)
 
 def turnflag_cb(data):
     global forwardFlag

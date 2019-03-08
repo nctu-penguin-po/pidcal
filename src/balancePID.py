@@ -13,9 +13,9 @@ from rospy_tutorials.msg import Floats
 import time
 
 state_data = 0
-rowkp = 1
+rowkp = 1.5
 rowki = 1
-pitchkp = 1
+pitchkp = 1.5
 pitchki = 1
 posture_data=[0,0,0]
 

@@ -18,12 +18,14 @@ turn_flag = [0, 0] #left, right
 state_data = 0
 autoSwitch = 0
 joyK = 0
+F_value = 0
+F_corK = 1
 
 def trigger_cb(data):
-    global turn_kp, state_data, joyK, autoSwitch
+    global turn_kp, state_data, joyK, autoSwitch, F_corK, F_value
     turn=data.data
     print(state_data)
-    if (state_data & 2) == 0 or state_data == -1:
+    if (state_data >> 3)%2 == 0 or state_data == -1:
         turn_direction = 0
         pub2.publish(0)
         pub_data = [0 for i in range(8)]
@@ -38,6 +40,7 @@ def trigger_cb(data):
         turn_direction = -1
     else:
         turn_direction = 0
+    turn_direction = turn_direction-F_value*F_corK 
     result_F = Talphaz*turn_kp*turn_direction
     pub_data = [result_F[i] for i in range(8)]
     pub_data = Float32MultiArray(data = pub_data)
@@ -45,8 +48,17 @@ def trigger_cb(data):
     pub2.publish(turn_kp*turn_direction)
 
 def state_cb(data):
-    global state_data
+    global state_data, autoSwitch, joyK
     state_data = data.data
+    if (state_data >> 3)%2 == 1:
+        autoSwitch = 1
+        joyK = -5
+    elif (state_data >> 3)%2 == 1:
+        autoSwitch = 1
+        joyK = 5
+    else:
+        autoSwitch = 0
+    pub3.publish(autoSwitch)
 
 def turnKp_cb(data):
     global turn_kp
@@ -72,11 +84,15 @@ def joyR_cb(data):
     joy_right_data = data.data
     x_sig = joy_right_data[0]
     if x_sig > 0:
-        joyK = -1
+        joyK = -5
     elif x_sig < 0:
-        joyK = 1
+        joyK = 5
     else:
         joyK = 0
+
+def getForward_cb(data):
+    global F_value
+    F_value = data.data
 
 '''
 def time_cb(data):
@@ -95,6 +111,7 @@ rospy.Subscriber('/PIDpara/turn', Float32, turnKp_cb)
 rospy.Subscriber('/flag/PIDturn', Int32MultiArray, turnflag_cb)
 rospy.Subscriber('/joy/button', Int32MultiArray, joyB_cb)
 rospy.Subscriber('/joy/right', Int32MultiArray, joyR_cb)
+rospy.Subscriber('/ft/forward', Float32, getForward_cb)
 #rospy.Subscriber('/sumi_t', Float32, time_cb)
 
 pub1 = rospy.Publisher('/force/turn',Float32MultiArray,queue_size=10)

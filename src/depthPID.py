@@ -14,12 +14,12 @@ import time
 state_data = 0
 depth_data = 0
 depthL = [0 for i in range(10)]
-depthR = [0.3, 0.35, 0.6]
+depthR = [0.5, 0.8, 0.9]
 joy_button_data = [0, 0, 0]
 
 joyKrate = 0.01
 Fkp = 0
-FincreaseRate = 0.05
+FincreaseRate = 0.08
 joyK = 0
 autoSwitch = 0
 
@@ -29,7 +29,7 @@ def depth_cb(data):
     for i in range(len(depthL)-1, 0, -1):
         depthL[i] = depthL[i-1]
     depthL[0] = depth_data-depthR[1]
-    if (state_data%2) == 0 or state_data == -1:
+    if (state_data%2) == 0 or state_data == -1 or state_data == 0:
         pub_data = [0 for i in range(8)]
         pub_data = Float32MultiArray(data = pub_data)
         pub1.publish(pub_data)
@@ -38,7 +38,7 @@ def depth_cb(data):
     
     D = depthL[0] - depthL[2]
     E = depth_data-depthR[1]
-    Fkp = Fkp+FincreaseRate*E+FincreaseRate*D*1
+    Fkp = Fkp+FincreaseRate*E+FincreaseRate*D*1.3
     '''
     if depth_data < depthR[0]:
         Fkp = Fkp-FincreaseRate*5
