@@ -2,12 +2,11 @@
 <!--
   <node name="data_node" pkg="tutorials" type="arduino_upload.py">
   </node>
--->
 
   <node name="dummy" pkg="pidcal" type="auto_dummy_sensor.py">
   </node>
-
-  <node name="state" pkg="statefile" type="joycontrol.py">
+-->
+  <node name="state" pkg="statefile" type="qualifications_justgo.py">
   </node>
 
   <node name="depthPID" pkg="pidcal" type="depthPID.py">
@@ -16,10 +15,10 @@
   <node name="balancePID" pkg="pidcal" type="balancePID.py">
   </node>
 
-  <node name="forwardPID" pkg="pidcal" type="forwardPID.py">
+  <node name="forwardPID" pkg="pidcal" type="forwardPIDjustgo.py">
   </node>
 
-  <node name="turnPID" pkg="pidcal" type="turnPID.py">
+  <node name="turnPID" pkg="pidcal" type="turnPIDcompass.py">
   </node>
 
   <node name="sumPID" pkg="pidcal" type="sumPID.py">

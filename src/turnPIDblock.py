@@ -34,19 +34,13 @@ def trigger_cb(data):
         pub_data = Float32MultiArray(data = pub_data)
         pub1.publish(pub_data)
         return
-    turn_direction = 0
-    if turn_data[4] == 0:
-        if turn_data[0] > 0:
-            turn_direction = 1
-        elif turn_data[1] > 0:
-            turn_direction = -1
+
+    if block_err > 20:
+        turn_direction = 1
+    elif block_err < -20:
+        turn_direction = -1
     else:
-        if block_err > 20:
-            turn_direction = 1
-        elif block_err < -20:
-            turn_direction = -1
-        else:
-            turn_direction = block_err/20.
+        turn_direction = block_err/20.
     '''
     if autoSwitch%2 == 1:
         turn_direction = joyK
@@ -67,33 +61,9 @@ def state_cb(data):
     global state_data, autoSwitch, joyK
     state_data = data.data
 
-def turnKp_cb(data):
-    global turn_kp
-    data = data.data
-    rowkp = data
-
 def turnflag_cb(data):
     global turn_flag, turn_data
     turn_data = data.data
-
-def joyB_cb(data):
-    global joy_button_data, autoSwitch
-    joy_button_data = data.data
-    front_sig = joy_button_data[2]
-    if front_sig%2 == 1:
-        autoSwitch = (autoSwitch+1)%2
-        pub3.publish(autoSwitch)
-        
-def joyR_cb(data):
-    global joy_right_data, joyK
-    joy_right_data = data.data
-    x_sig = joy_right_data[0]
-    if x_sig > 0:
-        joyK = -5
-    elif x_sig < 0:
-        joyK = 5
-    else:
-        joyK = 0
 
 def getForward_cb(data):
     global F_value

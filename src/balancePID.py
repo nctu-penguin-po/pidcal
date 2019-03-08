@@ -114,13 +114,13 @@ EWMAlist = EWMA_list_create(0.5, len(rowL))
 
 rospy.init_node('balancePID',anonymous=True)
 
+pub1 = rospy.Publisher('/force/balance',Float32MultiArray,queue_size=10)
+pub2 = rospy.Publisher('/ft/balance',Float32MultiArray,queue_size=10)
+
 rospy.Subscriber('posture', numpy_msg(Floats), pos_cb)
 rospy.Subscriber('/PIDpara/row', Float32MultiArray, rowPID_cb)
 rospy.Subscriber('/PIDpara/pitch', Float32MultiArray, pitchPID_cb)
 rospy.Subscriber('/state', Int32, state_cb)
-
-pub1 = rospy.Publisher('/force/balance',Float32MultiArray,queue_size=10)
-pub2 = rospy.Publisher('/ft/balance',Float32MultiArray,queue_size=10)
 
 while not rospy.is_shutdown():
     pass

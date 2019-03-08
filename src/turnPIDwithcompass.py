@@ -11,17 +11,19 @@ from std_msgs.msg import Int32MultiArray
 from rospy.numpy_msg import numpy_msg
 import time
 
+compass_target = 0
+compassList = [0 for i in range(20)]
 joy_button_data = [0, 0, 0]
 joy_right_data = [0, 0]
 turn_data = [0, 0, 0, 0, 0]
-turn_kp = 5
+turn_kp = 7
 turn_flag = [0, 0] #left, right
 state_data = 0
 autoSwitch = 0
 joyK = 0
 F_value = 0
 F_corK = 1
-block_err = 0
+compass_err = 0
 
 def trigger_cb(data):
     global turn_kp, state_data, joyK, autoSwitch, F_corK, F_value
@@ -34,19 +36,22 @@ def trigger_cb(data):
         pub_data = Float32MultiArray(data = pub_data)
         pub1.publish(pub_data)
         return
-    turn_direction = 0
+    csum = 0
+    for i in range(len(compassList)):
+        csum = csum+compassList[i]
+    csum = float(csum)/len(compassList)
     if turn_data[4] == 0:
         if turn_data[0] > 0:
             turn_direction = 1
         elif turn_data[1] > 0:
             turn_direction = -1
     else:
-        if block_err > 20:
+        if csum > 30:
             turn_direction = 1
-        elif block_err < -20:
+        elif csum < -30:
             turn_direction = -1
         else:
-            turn_direction = block_err/20.
+            turn_direction = csum/30.
     '''
     if autoSwitch%2 == 1:
         turn_direction = joyK
@@ -67,41 +72,22 @@ def state_cb(data):
     global state_data, autoSwitch, joyK
     state_data = data.data
 
-def turnKp_cb(data):
-    global turn_kp
-    data = data.data
-    rowkp = data
-
 def turnflag_cb(data):
     global turn_flag, turn_data
     turn_data = data.data
 
-def joyB_cb(data):
-    global joy_button_data, autoSwitch
-    joy_button_data = data.data
-    front_sig = joy_button_data[2]
-    if front_sig%2 == 1:
-        autoSwitch = (autoSwitch+1)%2
-        pub3.publish(autoSwitch)
+def compass_cb(data):
+    global compass_err
+    compass = data.data
+    compass_err = compass_target-compass
+    if compass_err<-180:
+        compass_err = compass_err+360
+    elif compass_err>180:
+        compass_err = compass_err-360
+    for i in range(len(compassList)-1, 0, -1):
+        compassList[i] = compassList[i-1]
+    compassList[0] = compass_err
         
-def joyR_cb(data):
-    global joy_right_data, joyK
-    joy_right_data = data.data
-    x_sig = joy_right_data[0]
-    if x_sig > 0:
-        joyK = -5
-    elif x_sig < 0:
-        joyK = 5
-    else:
-        joyK = 0
-
-def getForward_cb(data):
-    global F_value
-    F_value = data.data
-
-def block_cb(data):
-    global block_err
-    block_err = data.data
 '''
 def time_cb(data):
     data = data.data
@@ -121,8 +107,7 @@ pub3 = rospy.Publisher('/joy/flag/turn',Int32,queue_size=10)
 rospy.Subscriber('/trigger_command', Int32, trigger_cb)
 rospy.Subscriber('/state', Int32, state_cb)
 rospy.Subscriber('/flag/PIDturn', Int32MultiArray, turnflag_cb)
-rospy.Subscriber('/ft/forward', Float32, getForward_cb)
-rospy.Subscriber('/block/yaw/err', Float32, block_cb)
+rospy.Subscriber('/compass_yaw', Float32, compass_cb)
 #rospy.Subscriber('/sumi_t', Float32, time_cb)
 
 while not rospy.is_shutdown():

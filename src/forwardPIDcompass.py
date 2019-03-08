@@ -21,7 +21,6 @@ forwardFlag = 0
 state_data = 0
 autoSwitch = 0
 Kp = 0
-block_err = 0
 
 def trigger_cb(gdata):
     global Kp, autoSwitch
@@ -34,17 +33,17 @@ def trigger_cb(gdata):
         
     #test_mat_all = np.matrix([[forward_data], [0], [0], [0], [0], [0]])
     if turn_data[4] == 0:
-        if turn_data[0] == 0 and turn_data[1] == 0:
+        if turn_data[0] == 0 and turn_data[1] == 0
             Foutrate = 1
         else:
             Foutrate = 0.8
     else:
-        if block_err > 20:
-            Foutrate = 0.8
-        elif block_err < 20:
-            Foutrate = 0.8
+        if block_err > 20
+            turn_direction = 0.8
+        elif block_err < 20
+            turn_direction = 0.8
         else:
-            Foutrate = 1
+            turn_direction = 1
     result_F = Tax*Kp*Foutrate
     pub_data = [result_F[i] for i in range(8)]
     pub_data = Float32MultiArray(data = pub_data)
@@ -58,10 +57,6 @@ def state_cb(data):
 def turnflag_cb(data):
     global turn_data
     turn_data = data.data
-    
-def block_cb(data):
-    global block_err
-    block_err = data.data
 
 
 '''
@@ -113,7 +108,6 @@ pub3 = rospy.Publisher('/joy/flag/forward',Int32,queue_size=10)
 rospy.Subscriber('/trigger_command', Int32, trigger_cb)
 rospy.Subscriber('/state', Int32, state_cb)
 rospy.Subscriber('/flag/PIDturn', Int32MultiArray, turnflag_cb)
-
 #rospy.Subscriber('/joy/button', Int32MultiArray, joyB_cb)
 #rospy.Subscriber('/joy/left', Int32MultiArray, joyL_cb)
 #rospy.Subscriber('sumi_t', Float32, time_cb)
