@@ -20,7 +20,7 @@ turn_data = [0, 0, 0, 0, 0]
 forwardFlag = 0
 state_data = 0
 autoSwitch = 0
-Kp = 0
+Kp = 5
 block_err = 0
 
 def trigger_cb(gdata):

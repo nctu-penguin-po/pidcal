@@ -19,7 +19,7 @@ joy_left_data = [0, 0]
 forwardFlag = 0
 state_data = 0
 autoSwitch = 0
-Kp = 1.5
+Kp = 8
 
 def trigger_cb(gdata):
     global Kp, autoSwitch

@@ -1,8 +1,8 @@
 <launch>
-<!--
+
   <node name="data_node" pkg="tutorials" type="arduino_upload.py">
   </node>
-
+<!--
   <node name="dummy" pkg="pidcal" type="auto_dummy_sensor.py">
   </node>
 -->
@@ -23,11 +23,11 @@
 
   <node name="sumPID" pkg="pidcal" type="sumPID.py">
   </node>
-<!--`
+`
   <node name="arduino_download" pkg="tutorials" type="arduino_download.py">
   </node>
 
-
+<!--
   <node name="dashboard" pkg="viz" type="dashboard.py">
   </node>
 -->

@@ -11,12 +11,12 @@ from std_msgs.msg import Int32MultiArray
 from rospy.numpy_msg import numpy_msg
 import time
 
-compass_target = 0
+
 compassList = [0 for i in range(20)]
 joy_button_data = [0, 0, 0]
 joy_right_data = [0, 0]
 turn_data = [0, 0, 0, 0, 0]
-turn_kp = 7
+turn_kp = 6
 turn_flag = [0, 0] #left, right
 state_data = 0
 autoSwitch = 0
@@ -100,7 +100,8 @@ def getForward_cb(data):
     F_value = data.data
 
 def compass_cb(data):
-    global compass_err
+    compass_target = 180
+    global compass_err, compassList
     compass = data.data
     compass_err = compass_target-compass
     if compass_err<-180:

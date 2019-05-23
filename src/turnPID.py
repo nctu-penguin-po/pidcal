@@ -14,7 +14,7 @@ import time
 joy_button_data = [0, 0, 0]
 joy_right_data = [0, 0]
 turn_data = [0, 0, 0, 0, 0]
-turn_kp = 5
+turn_kp = 3
 turn_flag = [0, 0] #left, right
 state_data = 0
 autoSwitch = 0
